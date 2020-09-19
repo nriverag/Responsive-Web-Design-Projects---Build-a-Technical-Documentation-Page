@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Responsive Web Design Projects - Build a Technical Documentation Page: Stata Arima</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+<nav id="navbar">
+    <header>Stata ARIMA</header>
+    <ul>
+      <li><a class="nav-link" href="#Introduction">Introduction</a></li>
+      <li>
+        <a class="nav-link" href="#ARIMA_models"
+          >ARIMA models</a
+        >
+      </li>
+      <li>
+        <a class="nav-link" href="#JavaScript_and_Java">Multiplicative seasonal ARIMA models</a>
+      </li>
+      <li><a class="nav-link" href="#ARIMAX_models">ARIMAX models</a></li>
+      <li><a class="nav-link" href="#Dynamic_forecasting">Dynamic forecasting</a></li>
+      <li>
+        <a class="nav-link" href="#Methods_and_formulas">Methods and formulas
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" href="#Reference">Reference
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <main id="main-doc">
+    <section class="main-section" id="Introduction">
+      <header>Introduction</header>
+      <article>
+        <p>
+arima fits both standard ARIMA models that are autoregressive in the dependent variable and
+structural models with ARMA disturbances. Good introductions to the former models can be found in
+Box, Jenkins, and Reinsel (2008); Hamilton (1994); Harvey (1993); Newton (1988); Diggle (1990);
+and many others. The latter models are developed fully in Hamilton (1994) and Harvey (1989), both of
+which provide extensive treatment of the Kalman filter (Kalman 1960) and the state-space form used
+by arima to fit the models. Becketti (2013) discusses ARIMA models and Stata’s arima command,
+and he devotes an entire chapter explaining how the principles of ARIMA models are applied to real
+datasets in practice
+        </p>
+  
+        <p>
+For stationary series, full or unconditional maximum likelihood estimates are obtained via the
+Kalman filter. For nonstationary series, if some prior information is available, you can specify initial
+values for the filter by using state0() and p0() as suggested by Hamilton (1994) or assume an
+uninformative prior by using the diffuse option as suggested by Harvey (1989). Consider a first-order autoregressive moving-average process. Then arima estimates all the parameters in the model where: 
+
+        </p>
+        <ul>
+          <li>
+            ρ is the first-order autocorrelation parameter
+          </li>
+          <li>
+            θ is the first-order moving-average parameter
+          </li>
+          <li>
+            Et is a white noise disturbance. 
+          </li>
+        </ul>
+      </article>
+    </section>
+    <section class="main-section" id="ARIMA_models">
+      <header>ARIMA models</header>
+      <article>
+        <p>Pure ARIMA models without a structural component do not have regressors and are often written
+            as autoregressions in the dependent variable, rather than autoregressions in the disturbances from a
+            structural equation</p>
+  
+        <ul>
+          <li>
+            In one way, the results differ from most of Stata’s estimation commands: the standard error of
+            the coefficients is reported as OPG Std. Err. The default standard errors and covariance matrix
+            for arima estimates are derived from the outer product of gradients (OPG). This is one of three
+            asymptotically equivalent methods of estimating the covariance matrix of the coefficients (only two of
+            which are usually tractable to derive).</li>
+          <li>Discussions and derivations of all three estimates can be found
+            in Davidson and MacKinnon (1993), Greene (2012), and Hamilton (1994). Bollerslev, Engle, and
+            Nelson (1994) suggest that the OPG estimates are more numerically stable in time-series regressions
+            when the likelihood and its derivatives depend on recursive computations, which is certainly the case
+            for the Kalman filter.</li>
+          <li>
+            To date, we have found no numerical instabilities in either estimate of the
+            covariance matrix—subject to the stability and convergence of the overall model. Most of Stata’s estimation commands provide covariance estimates derived from the Hessian of
+            the likelihood function. These alternate estimates can also be obtained from arima by specifying the
+            vce(oim) option.
+        </li>
+        </ul>
+      </article>
+    </section>
+    <section class="main-section" id="JavaScript_and_Java">
+      <header>Multiplicative seasonal ARIMA models</header>
+      <article>
+        <p>
+            Many time series exhibit a periodic seasonal component, and a seasonal ARIMA model, often
+            abbreviated SARIMA, can then be used. For example, monthly sales data for air conditioners have a
+            strong seasonal component, with sales high in the summer months and low in the winter months.
+        </p>
+  
+        <p>
+            In the notation (1, 1, 1) × (0, 0, 1)4, the (1, 1, 1) means that there is one nonseasonal autoregressive
+            term (1 − ρ1L) and one nonseasonal moving-average term (1 + θ1L) and that the time series is
+            first-differenced one time. The (0, 0, 1)4 indicates that there is no lag-4 seasonal autoregressive term,
+            that there is one lag-4 seasonal moving-average term (1 + θ4,1L
+            4
+            ), and that the series is seasonally
+            differenced zero times. This is known as a multiplicative SARIMA model because the nonseasonal
+            and seasonal factors work multiplicatively: (1 + θ1L)(1 + θ4,1L
+            4
+            ). Multiplying the terms imposes
+            nonlinear constraints on the parameters of the fifth-order lagged values; arima imposes these constraints
+            automatically.
+        </p>
+        <p>
+            Unless diffuse is used, arima must create square matrices of dimension {max(p, q+1)}
+            2
+            , where
+            p and q are the maximum AR and MA lags, respectively; and the inclusion of long seasonal terms can
+            make this dimension rather large. For example, with monthly data, you might fit a (0, 1, 1)×(0, 1, 2)12
+            SARIMA model. The maximum MA lag is 2 × 12 + 1 = 25, requiring a matrix with 262 = 676 rows
+            and columns
+        </p>
+      </article>
+    </section>
+
+    <section class="main-section" id="ARIMAX_models">
+      <header>ARIMAX models</header>
+      <article>
+        Thus far all our examples have been pure ARIMA models in which the dependent variable was
+        modeled solely as a function of its past values and disturbances. Also, arima can fit ARMAX models,
+        which model the dependent variable in terms of a linear combination of independent variables, as
+        well as an ARMA disturbance process. The prais command (see [TS] prais), for example, allows
+        you to control for only AR(1) disturbances, whereas arima allows you to control for a much richer
+        dynamic error structure. arima allows for both nonseasonal and seasonal ARMA components in the
+        disturbances. The code is:
+        <code
+          >arima consump m2 if tin(, 1981q4), ar(1) ma(1);
+        </code>
+  
+        We will restrict the estimation to the desired sample by using the tin() function in an if
+        expression; see [D] functions. By leaving the first argument of tin() blank, we are including all
+        available data through the second date (1981q4). 
+      </article>
+    </section>
+    <section class="main-section" id="Dynamic_forecasting">
+      <header>Dynamic forecasting</header>
+      <p>
+        Another feature of the arima command is the ability to use predict afterward to make dynamic
+        forecasts.
+      </p>
+      <p>
+        If we use regress or prais to fit the model, then we can use predict to make one-step-ahead
+        forecasts.
+      </p>
+      <p>
+        Most importantly, here predict will use the actual value of y at period f − 1 in computing the
+        forecast for time f. Thus, if we use regress or prais, we cannot make forecasts for any periods
+        beyond f = T + 1 unless we have observed values for y for those periods.
+        
+      </p>
+    </section>
+    <section class="main-section" id="Methods_and_formulas">
+      <header>Methods and formulas</header>
+      <article>
+        Estimation is by maximum likelihood using the Kalman filter via the prediction error decomposition;
+        see Hamilton (1994), Gourieroux and Monfort (1997), or, in particular, Harvey (1989). Any of these
+        sources will serve as excellent background for the fitting of these models with the state-space form;
+        each source also provides considerable detail on the method outlined below:<p>
+          With the keyword var. For example, <code>var x = 42.</code> This syntax
+          can be used to declare both local and global variables.
+        </p>
+        <p>
+            Kalman filter recursions: To demonstrate how missing data are handled, the updating recursions for the Kalman filter will
+            be left in two steps. Writing the updating equations as one step using the gain matrix K is common.
+            We will provide the updating equations with little justification; see the sources listed above for details.
+            
+        </p>
+        <p>
+            Kalman filter initial conditions: If the series is not stationary, the initial state conditions do not constitute a random draw from a
+            stationary distribution, and some other values must be chosen. Hamilton (1994) suggests that they be
+            chosen based on prior expectations, whereas Harvey suggests a diffuse and improper prior having a
+            state vector of 0 and an infinite variance. This method corresponds to P1|0 with diagonal elements of
+            ∞. Stata allows either approach to be taken for nonstationary series—initial priors may be specified
+            with state0() and p0(), and a diffuse prior may be specified with diffuse.
+        </p>
+      </article>
+    </section>
+    
+    <section class="main-section" id="Reference">
+      <header>Reference</header>
+      <article>
+        <ul>
+          <li>
+            All the documentation in this page is taken from
+            <a
+              href="https://www.stata.com/manuals13/tsarima.pdf"
+              target="_blank">STATA</a>           
+            
+          </li>
+        </ul>
+      </article>
+    </section>
+  </main>
